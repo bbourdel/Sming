@@ -36,9 +36,9 @@ TcpConnection::~TcpConnection()
 		delete[] sslFingerprint.pkSha256;
 	}
 	freeSslClientKeyCert();
-	if(ssl_ext != NULL) {
+	if(sslExtension != NULL) {
 		debugf("SSL not null");
-		ssl_ext_free(ssl_ext);
+		ssl_ext_free(sslExtension);
 	}
 
 
