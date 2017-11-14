@@ -123,11 +123,10 @@ void HttpClient::freeSslSessionPool()
 {
 	for(int i=0; i< sslSessionIdPool.count(); i ++) {
 		String key = sslSessionIdPool.keyAt(i);
-		if(sslSessionIdPool[key]->value != NULL) {
-			free(sslSessionIdPool[key]->value);
-		}
 		free(sslSessionIdPool[key]->value);
+		sslSessionIdPool[key]->value = NULL;
 		free(sslSessionIdPool[key]);
+		sslSessionIdPool[key] = NULL;
 	}
 	sslSessionIdPool.clear();
 }
@@ -171,7 +170,10 @@ void HttpClient::cleanup()
 
 HttpClient::~HttpClient()
 {
-
+	// DON'T call cleanup.
+	// If you want to free all resources from HttpClients the correct sequence will be to
+	// 1. Delete all instances of HttpClient
+	// 2. Call the static method HttpClient::cleanup();
 }
 
 String HttpClient::getCacheKey(URL url)

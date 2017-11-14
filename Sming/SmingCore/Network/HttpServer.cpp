@@ -70,11 +70,6 @@ TcpConnection* HttpServer::createClient(tcp_pcb *clientTcp)
 	HttpServerConnection* con = new HttpServerConnection(clientTcp);
 	con->setResourceTree(&resourceTree);
 	con->setBodyParsers(&bodyParsers);
-	con->setCompleteDelegate(TcpClientCompleteDelegate(&HttpServer::onConnectionClose, this));
-
-	connections.add(con);
-	totalConnections = connections.count();
-	debugf("Opening connection. Total connections: %d", totalConnections);
 
 	return con;
 }
@@ -110,28 +105,4 @@ void HttpServer::addPath(const String& path, HttpResource* resource)
 void HttpServer::setDefaultResource(HttpResource* resource)
 {
 	addPath("*", resource);
-}
-
-void HttpServer::shutdown()
-{
-	active = false;
-	for(int i; i < connections.count(); i++) {
-		HttpServerConnection* connection = connections[i];
-		if(connection == NULL) {
-			continue;
-		}
-
-		connection->close();
-	}
-}
-
-void HttpServer::onConnectionClose(TcpClient& connection, bool success)
-{
-	connections.removeElement((HttpServerConnection*)&connection);
-	totalConnections = connections.count();
-	if(totalConnections == 0 && !active){
-		debugf("Shutting down the Http Server");
-		delete this;
-	}
-	debugf("Closing connection. Total connections: %d", totalConnections);
 }
